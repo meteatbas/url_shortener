@@ -30,16 +30,12 @@ class ShortenerControllerTest {
     private static final String SHORT_LINK_FB = "vat.sl/2";
 
     private static final String BASE_URL = "/v1";
-    private static final String GET_ALL_LINKS_URL = "/";
+    private static final String GET_ALL_LINKS_URL = "/get-all";
     private static final String SHORTEN_URL = "/shorten";
     private static final String GET_ORIGINAL_URL = "/original";
 
     private static final String SHORTEN_INPUT_DTO = "{\n" +
             "    \"link\": \"https://www.google.com/\"\n" +
-            "}";
-
-    private static final String SHORTEN_INPUT_DTO_INVALID = "{\n" +
-            "    \"link\": \"\"\n" +
             "}";
 
     private static final String GET_ORIGINAL_INPUT_DTO = "{\n" +
@@ -108,21 +104,6 @@ class ShortenerControllerTest {
     }
 
     @Test
-    void testShortenMethodArgumentNotValidException() throws Exception {
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL + SHORTEN_URL)
-                        .content(SHORTEN_INPUT_DTO_INVALID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        JSONAssert.assertEquals(
-                "{\"requestViolations\":[{\"fieldName\":\"link\",\"errorMessage\":\"must match \\\"[(http(s)?):\\\\/\\\\/(www\\\\.)?a-zA-Z0-9@:%._\\\\+~#=]{2,256}\\\\.[a-z]{2,6}\\\\b([-a-zA-Z0-9@:%_\\\\+.~#?&//=]*)\\\"\"}]}", response, JSONCompareMode.LENIENT);
-    }
-
-    @Test
     void testShortenInternalServerError() throws Exception {
         OutputDTO outputDTO = new OutputDTO(Status.SUCCESS, GENERATED_SHORT_LINK, LONG_LINK_GOOGlE, SHORT_LINK_GOOGLE);
         Mockito.when(shortenerService.shorten(Mockito.any())).thenReturn(outputDTO);
@@ -177,20 +158,6 @@ class ShortenerControllerTest {
         String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         JSONAssert.assertEquals(
                 "{\"status\":\"FAILED\",\"message\":\"Short link not found\",\"shortLink\":\"vat.sl/1\"}", response, JSONCompareMode.LENIENT);
-    }
-
-    @Test
-    void testGetOriginalMethodArgumentNotValidException() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL + GET_ORIGINAL_URL)
-                        .content(SHORTEN_INPUT_DTO_INVALID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        JSONAssert.assertEquals(
-                "{\"requestViolations\":[{\"fieldName\":\"link\",\"errorMessage\":\"must match \\\"[(http(s)?):\\\\/\\\\/(www\\\\.)?a-zA-Z0-9@:%._\\\\+~#=]{2,256}\\\\.[a-z]{2,6}\\\\b([-a-zA-Z0-9@:%_\\\\+.~#?&//=]*)\\\"\"}]}", response, JSONCompareMode.LENIENT);
     }
 
     @Test

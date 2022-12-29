@@ -32,7 +32,7 @@ class ShortenerRepositoryTest {
     private ShortenerRepository shortenerRepository;
 
     @BeforeEach
-    private void initialise() {
+    public void initialise() {
         ReflectionTestUtils.setField(shortenerRepository, "jdbcTemplate", jdbcTemplate);
     }
 
